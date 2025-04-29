@@ -1,14 +1,27 @@
-[gd_scene load_steps=5 format=3 uid="uid://bw216wesqda4w"]
+[gd_scene load_steps=10 format=3 uid="uid://bw216wesqda4w"]
 
 [ext_resource type="Texture2D" uid="uid://ccuc140ffj2w6" path="res://assets/player_ship.png" id="1_4flbx"]
 [ext_resource type="Script" uid="uid://dhi5c2gciittl" path="res://player.gd" id="1_onrkg"]
 [ext_resource type="PackedScene" uid="uid://d0ne8a4dwmuw6" path="res://bullet.tscn" id="2_i3pqv"]
+[ext_resource type="PackedScene" uid="uid://dq7665txly0d7" path="res://explosion.tscn" id="4_hqtel"]
+[ext_resource type="AudioStream" uid="uid://c5cv1l6euy0j8" path="res://assets/sounds/laser.ogg" id="5_2hs0m"]
+[ext_resource type="AudioStream" uid="uid://cci4j8mj1i51m" path="res://assets/sounds/engine.ogg" id="6_1jxqw"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_onrkg"]
 radius = 31.0644
 
-[node name="Player" type="RigidBody2D"]
+[sub_resource type="Curve" id="Curve_2hs0m"]
+_data = [Vector2(0, 0.977528), 0.0, 0.0, 0, 0, Vector2(0.9875, 0.146068), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_1jxqw"]
+offsets = PackedFloat32Array(0.604167, 1)
+
+[node name="Player" type="RigidBody2D" groups=["player"]]
+collision_mask = 6
 gravity_scale = 0.0
+contact_monitor = true
+max_contacts_reported = 1
 linear_damp = 1.0
 angular_damp = 5.0
 script = ExtResource("1_onrkg")
@@ -28,4 +41,36 @@ position = Vector2(50, 0)
 [node name="GunCooldown" type="Timer" parent="."]
 one_shot = true
 
+[node name="Explosion" parent="." instance=ExtResource("4_hqtel")]
+visible = false
+
+[node name="InvulnerabilityTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[node name="LaserSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_2hs0m")
+volume_db = -10.0
+
+[node name="EngineSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_1jxqw")
+
+[node name="Exhaust" type="CPUParticles2D" parent="."]
+show_behind_parent = true
+position = Vector2(-28, 0)
+rotation = 3.14159
+amount = 25
+lifetime = 0.1
+local_coords = true
+emission_shape = 3
+emission_rect_extents = Vector2(1, 5)
+spread = 0.0
+gravity = Vector2(0, 0)
+initial_velocity_max = 400.0
+scale_amount_curve = SubResource("Curve_2hs0m")
+color = Color(0.856072, 0.361701, 0.120959, 1)
+color_ramp = SubResource("Gradient_1jxqw")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="timeout" from="GunCooldown" to="." method="_on_gun_cooldown_timeout"]
+[connection signal="timeout" from="InvulnerabilityTimer" to="." method="_on_invulnerability_timer_timeout"]

@@ -31,3 +31,10 @@ func _on_start_button_pressed():
 func _on_timer_timeout():
 	message.hide()
 	message.text = ""
+	
+@onready var shield_bar =$MarginContainer/HBoxContainer/ShieldBar
+var bar_textures = {
+	"green": preload("res://assets/bar_green_200.png"),
+	"yellow": preload("res://assets/bar_yellow_200.png"),
+	"red": preload("res://assets/bar_red_200.png")
+}
